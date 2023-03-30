@@ -37,7 +37,7 @@
         <None Include="..\LICENSE" Pack="true" PackagePath="\" />
         <None Include="..\icon.png" Pack="true" PackagePath="\"/>
 
-        <PackageReference Include="Hangfire.Core" Version="1.7.33" />
+        <PackageReference Include="Hangfire.Core" Version="1.7.34" />
         <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
     </ItemGroup>
 </Project>
