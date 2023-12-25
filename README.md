@@ -8,5 +8,5 @@
 ## Installation
 
 ```
-Install-Package Soenneker.Hangfire.SkipMissedRuns
+dotnet add package Soenneker.Hangfire.SkipMissedRuns
 ```
