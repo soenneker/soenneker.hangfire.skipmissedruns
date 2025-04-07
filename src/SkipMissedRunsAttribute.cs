@@ -14,7 +14,7 @@ public class SkipMissedRunsAttribute : JobFilterAttribute, IClientFilter
     /// <summary>
     /// The cutoff point in which we determine a job is 'old'. (1 minute)
     /// </summary>
-    private const int MaxDelayMs = 60000;
+    private const int _maxDelayMs = 60000;
 
     public void OnCreating(CreatingContext filterContext)
     {
@@ -28,17 +28,17 @@ public class SkipMissedRunsAttribute : JobFilterAttribute, IClientFilter
         if (recurringJob == null || !recurringJob.TryGetValue("NextExecution", out string? nextExecution)) 
             return;
 
-        var utcNow = DateTime.UtcNow;
+        DateTime utcNow = DateTime.UtcNow;
 
         // the next execution time of a recurring job is updated AFTER the job instance creation,
         // so at the moment it still contains the scheduled execution time from the previous run.
-        var scheduledTime = JobHelper.DeserializeDateTime(nextExecution);
+        DateTime scheduledTime = JobHelper.DeserializeDateTime(nextExecution);
 
         // Check if the job is created later than expected
         // and if it was created from the scheduler.
 
         // For now we don't want ANY old jobs to be scheduled
-        if (utcNow > scheduledTime.AddMilliseconds(MaxDelayMs)) // && IsCreatedFromRecurringJobScheduler()
+        if (utcNow > scheduledTime.AddMilliseconds(_maxDelayMs)) // && IsCreatedFromRecurringJobScheduler()
         {
             filterContext.Canceled = true;
         }
