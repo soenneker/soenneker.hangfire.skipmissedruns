@@ -9,7 +9,7 @@ namespace Soenneker.Hangfire.SkipMissedRuns;
 /// Ensures the hangfire runner doesn't execute this job if time has passed since it's scheduled execution
 /// </summary>
 /// <remarks>Don't add this as an attribute to a method unless it's a hangfire -RECURRING- job</remarks>
-public class SkipMissedRunsAttribute : JobFilterAttribute, IClientFilter
+public sealed class SkipMissedRunsAttribute : JobFilterAttribute, IClientFilter
 {
     /// <summary>
     /// The cutoff point in which we determine a job is 'old'. (1 minute)
