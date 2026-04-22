@@ -1,16 +1,15 @@
-using Soenneker.Tests.FixturedUnit;
-using Xunit;
+using Soenneker.Tests.HostedUnit;
 
 namespace Soenneker.Hangfire.SkipMissedRuns.Tests;
 
-[Collection("Collection")]
-public class SkipMissedRunsAttributeTests : FixturedUnitTest
+[ClassDataSource<Host>(Shared = SharedType.PerTestSession)]
+public class SkipMissedRunsAttributeTests : HostedUnitTest
 {
-    public SkipMissedRunsAttributeTests(Fixture fixture, ITestOutputHelper output) : base(fixture, output)
+    public SkipMissedRunsAttributeTests(Host host) : base(host)
     {
     }
 
-    [Fact]
+    [Test]
     public void Default()
     {
     }
