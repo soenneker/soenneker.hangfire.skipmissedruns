@@ -17,9 +17,9 @@ public sealed class SkipMissedRunsAttribute : JobFilterAttribute, IClientFilter
     private const int _maxDelayMs = 60000;
 
     /// <summary>
-    /// Executes the on creating operation.
+    /// Responds when creating occurs.
     /// </summary>
-    /// <param name="filterContext">The filter context.</param>
+    /// <param name="filterContext">Filter Context for the on creating operation.</param>
     public void OnCreating(CreatingContext filterContext)
     {
         if (!filterContext.Parameters.TryGetValue("RecurringJobId", out object? recurringJobId)) 
@@ -49,9 +49,9 @@ public sealed class SkipMissedRunsAttribute : JobFilterAttribute, IClientFilter
     }
 
     /// <summary>
-    /// Executes the on created operation.
+    /// Responds when created occurs.
     /// </summary>
-    /// <param name="filterContext">The filter context.</param>
+    /// <param name="filterContext">Filter Context for the on created operation.</param>
     public void OnCreated(CreatedContext filterContext)
     {
         // required for base
