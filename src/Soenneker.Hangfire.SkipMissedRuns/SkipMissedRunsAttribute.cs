@@ -6,30 +6,36 @@ using Hangfire.Common;
 namespace Soenneker.Hangfire.SkipMissedRuns;
 
 /// <summary>
-/// Ensures the hangfire runner doesn't execute this job if time has passed since it's scheduled execution
+/// Cancels creation of a recurring job occurrence when its scheduled execution time is older than the allowed delay.
 /// </summary>
-/// <remarks>Don't add this as an attribute to a method unless it's a hangfire -RECURRING- job</remarks>
+/// <remarks>Apply this attribute only to recurring Hangfire job methods.</remarks>
 public sealed class SkipMissedRunsAttribute : JobFilterAttribute, IClientFilter
 {
-    /// <summary>
-    /// The cutoff point in which we determine a job is 'old'. (1 minute)
-    /// </summary>
-    private const int _maxDelayMs = 60000;
+    private readonly TimeSpan _maxDelay;
 
     /// <summary>
-    /// Responds when creating occurs.
+    /// Creates a filter with the maximum permitted scheduling delay.
+    /// </summary>
+    /// <param name="maxDelaySeconds">The age, in seconds, after which a recurring occurrence is skipped. Negative values are treated as zero.</param>
+    public SkipMissedRunsAttribute(int maxDelaySeconds = 60)
+    {
+        _maxDelay = TimeSpan.FromSeconds(Math.Max(0, maxDelaySeconds));
+    }
+
+    /// <summary>
+    /// Cancels stale recurring occurrences before Hangfire creates them.
     /// </summary>
     /// <param name="filterContext">Filter Context for the on creating operation.</param>
     public void OnCreating(CreatingContext filterContext)
     {
-        if (!filterContext.Parameters.TryGetValue("RecurringJobId", out object? recurringJobId)) 
+        if (!filterContext.Parameters.TryGetValue("RecurringJobId", out object? recurringJobId))
             return;
 
         // the job being created looks like a recurring job instance.
 
         Dictionary<string, string>? recurringJob = filterContext.Connection.GetAllEntriesFromHash($"recurring-job:{recurringJobId}");
 
-        if (recurringJob == null || !recurringJob.TryGetValue("NextExecution", out string? nextExecution)) 
+        if (recurringJob == null || !recurringJob.TryGetValue("NextExecution", out string? nextExecution))
             return;
 
         DateTime utcNow = DateTime.UtcNow;
@@ -42,14 +48,14 @@ public sealed class SkipMissedRunsAttribute : JobFilterAttribute, IClientFilter
         // and if it was created from the scheduler.
 
         // For now we don't want ANY old jobs to be scheduled
-        if (utcNow > scheduledTime.AddMilliseconds(_maxDelayMs)) // && IsCreatedFromRecurringJobScheduler()
+        if (utcNow > scheduledTime && utcNow - scheduledTime > _maxDelay)
         {
             filterContext.Canceled = true;
         }
     }
 
     /// <summary>
-    /// Responds when created occurs.
+    /// Performs no post-creation work.
     /// </summary>
     /// <param name="filterContext">Filter Context for the on created operation.</param>
     public void OnCreated(CreatedContext filterContext)
